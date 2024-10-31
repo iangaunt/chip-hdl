@@ -1,6 +1,7 @@
-#include "hdl_chip.h"
+#include "hdlc.h"
 
-hdl_chip::hdl_chip() {}
+/** Creates a new `hdlc` object. */
+hdlc::hdlc() {}
 
 /**
  * |  a  |  b  | NAND(a, b) |
@@ -20,7 +21,7 @@ hdl_chip::hdl_chip() {}
  * @param b The second input boolean.
  * @return The result of the NAND gate.
  */
-bool hdl_chip::NAND(bool a, bool b) {
+bool hdlc::NAND(bool a, bool b) {
     if (a == b && a == 1) return false;
     return true;
 }
@@ -31,7 +32,7 @@ bool hdl_chip::NAND(bool a, bool b) {
  * @param a The input boolean value.
  * @return The opposite of the NOT gate.
  */
-bool hdl_chip::NOT(bool a) {
+bool hdlc::NOT(bool a) {
     return NAND(a, a);
 }
 
@@ -42,7 +43,7 @@ bool hdl_chip::NOT(bool a) {
  * @param b The second input boolean.
  * @return The result of the AND gate.
  */
-bool hdl_chip::AND(bool a, bool b) {
+bool hdlc::AND(bool a, bool b) {
     return NOT(
         NAND(a, b)
     );
@@ -55,7 +56,7 @@ bool hdl_chip::AND(bool a, bool b) {
  * @param b The second input boolean.
  * @return The result of the OR gate.
  */
-bool hdl_chip::OR(bool a, bool b) {
+bool hdlc::OR(bool a, bool b) {
     return NAND(
         NOT(a), 
         NOT(b)
@@ -69,7 +70,7 @@ bool hdl_chip::OR(bool a, bool b) {
  * @param b The second input boolean.
  * @return The result of the XOR gate.
  */
-bool hdl_chip::XOR(bool a, bool b) {
+bool hdlc::XOR(bool a, bool b) {
     return NAND(
         NAND(NOT(a), b), 
         NAND(a, NOT(b))
@@ -84,7 +85,7 @@ bool hdl_chip::XOR(bool a, bool b) {
  * @param sel The toggle for returning `a` or `b`.
  * @return The result of the MUX gate.
  */
-bool hdl_chip::MUX(bool a, bool b, bool sel) {
+bool hdlc::MUX(bool a, bool b, bool sel) {
     return XOR(
         sel,
         XOR(
@@ -101,7 +102,7 @@ bool hdl_chip::MUX(bool a, bool b, bool sel) {
  * @param sel The selector for the pair index.
  * @return A two-bit array containing `true` or `false` values.
  */
-bool* hdl_chip::DMUX(bool in, bool sel) {
+bool* hdlc::DMUX(bool in, bool sel) {
     bool* out = new bool[2];
 
     out[0] = AND(in, NOT(sel));
@@ -116,7 +117,7 @@ bool* hdl_chip::DMUX(bool in, bool sel) {
  * @param a The 16-bit input boolean value.
  * @return The 16-bit `NOT` gate result.
  */
-bool* hdl_chip::NOT16(bool* a) {
+bool* hdlc::NOT16(bool* a) {
     bool* out = new bool[16];
 
     for (int i = 0; i < 16; i++) {
@@ -133,7 +134,7 @@ bool* hdl_chip::NOT16(bool* a) {
  * @param b The second 16-bit input boolean value.
  * @return The 16-bit `AND` gate result.
  */
-bool* hdl_chip::AND16(bool* a, bool* b) {
+bool* hdlc::AND16(bool* a, bool* b) {
     bool* out = new bool[16];
 
     for (int i = 0; i < 16; i++) {
@@ -150,7 +151,7 @@ bool* hdl_chip::AND16(bool* a, bool* b) {
  * @param b The second 16-bit input boolean value.
  * @return The 16-bit `OR` gate result.
  */
-bool* hdl_chip::OR16(bool* a, bool* b) {
+bool* hdlc::OR16(bool* a, bool* b) {
     bool* out = new bool[16];
 
     for (int i = 0; i < 16; i++) {
@@ -167,7 +168,7 @@ bool* hdl_chip::OR16(bool* a, bool* b) {
  * @param b The second 16-bit input boolean value.
  * @return The 16-bit `XOR` gate result.
  */
-bool* hdl_chip::XOR16(bool* a, bool* b) {
+bool* hdlc::XOR16(bool* a, bool* b) {
     bool* out = new bool[16];
 
     for (int i = 0; i < 16; i++) {
@@ -184,7 +185,7 @@ bool* hdl_chip::XOR16(bool* a, bool* b) {
  * @param b The second 16-bit input boolean value.
  * @return The 16-bit `MUX` gate result.
  */
-bool* hdl_chip::MUX16(bool* a, bool* b, bool sel) {
+bool* hdlc::MUX16(bool* a, bool* b, bool sel) {
     bool* out = new bool[16];
 
     for (int i = 0; i < 16; i++) {
@@ -209,7 +210,7 @@ bool* hdl_chip::MUX16(bool* a, bool* b, bool sel) {
  * @param h The eighth 16-bit input boolean value.
  * @return The 16-bit `OR8WAY` gate result.
  */
-bool* hdl_chip::OR8WAY(bool* a, bool* b, bool* c, bool* d, bool* e, bool* f, bool* g, bool* h) {
+bool* hdlc::OR8WAY(bool* a, bool* b, bool* c, bool* d, bool* e, bool* f, bool* g, bool* h) {
     bool* out = new bool[16];
 
     out = OR16(out, a);
@@ -235,7 +236,7 @@ bool* hdl_chip::OR8WAY(bool* a, bool* b, bool* c, bool* d, bool* e, bool* f, boo
  * @param sel The 2-bit selector field.
  * @return The 16-bit `MUX4WAY16` gate result.
  */
-bool* hdl_chip::MUX4WAY16(bool* a, bool* b, bool* c, bool* d, bool* sel) {
+bool* hdlc::MUX4WAY16(bool* a, bool* b, bool* c, bool* d, bool* sel) {
     bool* out = new bool[16];
 
     out = MUX16(
@@ -262,7 +263,7 @@ bool* hdl_chip::MUX4WAY16(bool* a, bool* b, bool* c, bool* d, bool* sel) {
  * @param sel The 3-bit selector field.
  * @return The 16-bit `MUX8WAY16` gate result.
  */
-bool* hdl_chip::MUX8WAY16(bool* a, bool* b, bool* c, bool* d, bool* e, bool* f, bool* g, bool* h, bool* sel) {
+bool* hdlc::MUX8WAY16(bool* a, bool* b, bool* c, bool* d, bool* e, bool* f, bool* g, bool* h, bool* sel) {
     bool* out = new bool[16];
     
     out = MUX16(
@@ -282,7 +283,7 @@ bool* hdl_chip::MUX8WAY16(bool* a, bool* b, bool* c, bool* d, bool* e, bool* f, 
  * @param sel The 2-bit selector for the 4 indices.
  * @return The 4-bit `DMUX4WAY` gate result.
  */
-bool* hdl_chip::DMUX4WAY(bool in, bool* sel) {
+bool* hdlc::DMUX4WAY(bool in, bool* sel) {
     bool* out = new bool[4];
     
     out[0] = AND(in, 
@@ -324,7 +325,7 @@ bool* hdl_chip::DMUX4WAY(bool in, bool* sel) {
  * @param sel The 3-bit selector for the 8 indices.
  * @return The 8-bit `DMUX4WAY` gate result.
  */
-bool* hdl_chip::DMUX8WAY(bool in, bool* sel) {
+bool* hdlc::DMUX8WAY(bool in, bool* sel) {
     bool* out = new bool[8];
 
     out[0] = AND(in, AND(

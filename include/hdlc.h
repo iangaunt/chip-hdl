@@ -1,10 +1,10 @@
-#ifndef HDL_CHIP_H
-#define HDL_CHIP_H
+#ifndef HDLC_H
+#define HDLC_H
 
-class hdl_chip {
+class hdlc {
     
 public:
-        hdl_chip();
+        hdlc();
         bool NAND(bool a, bool b);
         bool AND(bool a, bool b);
         bool NOT(bool a);
