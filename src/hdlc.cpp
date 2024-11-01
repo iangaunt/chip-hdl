@@ -1,5 +1,9 @@
 #include "hdlc.h"
 
+#include <string>
+
+using std::string;
+
 /** Creates a new `hdlc` object. */
 hdlc::hdlc() {}
 
@@ -11,6 +15,20 @@ hdlc::hdlc() {}
  * |  1  |  0  |      1     |
  * |  1  |  1  |      0     |
  */
+
+/**
+ * Convertes a 16-bit boolean value to a string representation.
+ * 
+ * @param in The 16-bit input boolean value.
+ * @return The string representation of `in`.
+ */
+string hdlc::BOOL_TO_STR(bool* in) {
+    string out = "b ";
+    for (int i = 0; i < 16; i++) {
+        out += (in[i]? "1" : "0");
+    }
+    return out;
+}
 
 /**
  * A NOT-AND gate. This is used to implement every other type of boolean

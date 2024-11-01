@@ -1,10 +1,16 @@
 #ifndef HDLC_H
 #define HDLC_H
 
+#include <string>
+
+using std::string;
+
 class hdlc {
-    
-public:
+    public:
         hdlc();
+        
+        string BOOL_TO_STR(bool* in);
+
         bool NAND(bool a, bool b);
         bool AND(bool a, bool b);
         bool NOT(bool a);
