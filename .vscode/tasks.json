@@ -16,6 +16,7 @@
                 "${workspaceFolder}/src/hdlc.cpp",
                 "${workspaceFolder}/src/arith.cpp",
                 "${workspaceFolder}/src/dff.cpp",
+                "${workspaceFolder}/src/ram.cpp",
 
                 "-o",
                 "${workspaceFolder}/chip.exe"

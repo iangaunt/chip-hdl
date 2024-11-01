@@ -9,6 +9,7 @@ int dff::next_index = 0;
 dff::dff() {
     dff_index = next_index;
     dff::next_index += 1;
+    dff::v.push_back(*this);
 }
 
 /**
