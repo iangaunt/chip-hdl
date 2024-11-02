@@ -11,7 +11,7 @@ using std::string;
 /**
  * Creates a new `arith` object.
  * 
- * @param chip The `hdl` for operations.
+ * @param chip The `hdlc` for operations.
  */
 arith::arith(hdlc* chip) {
     hdl = chip;

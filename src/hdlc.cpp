@@ -104,12 +104,9 @@ bool hdlc::XOR(bool a, bool b) {
  * @return The result of the MUX gate.
  */
 bool hdlc::MUX(bool a, bool b, bool sel) {
-    return XOR(
-        sel,
-        XOR(
-            AND(b, sel),
-            OR(a, sel)
-        )
+    return OR(
+        AND(a, NOT(sel)),
+        AND(b, sel)
     );
 }
 

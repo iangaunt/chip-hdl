@@ -12,11 +12,8 @@
                 "-I${workspaceFolder}/include",
                 "-L${workspaceFolder}/lib",
 
-                "${workspaceFolder}/src/main.cpp",
-                "${workspaceFolder}/src/hdlc.cpp",
-                "${workspaceFolder}/src/arith.cpp",
-                "${workspaceFolder}/src/dff.cpp",
-                "${workspaceFolder}/src/ram.cpp",
+                "${workspaceFolder}/src/ram/*.cpp",
+                "${workspaceFolder}/src/*.cpp",
 
                 "-o",
                 "${workspaceFolder}/chip.exe"
