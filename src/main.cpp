@@ -21,7 +21,7 @@ using std::string;
 
 string bool_to_str(bool* b) {
     string result = "";
-    for (int i = 0; i < sizeof(b) / sizeof(bool); i++) {
+    for (int i = 0; i < 16; i++) {
         result += b[i]? "1" : "0";
     }
     return result;
@@ -30,10 +30,22 @@ string bool_to_str(bool* b) {
 int main() {
     hdlc hdlc_c = *new hdlc();
     arith arith_c = *new arith(&hdlc_c);
-    ram ram_c = *new ram(&hdlc_c);
+    ram ram_c = *new ram(&hdlc_c, 16384);
 
-    bit_register bitr_c = *new bit_register(&hdlc_c, 4);
-    bool k[4] = {false, true, true, false};
+    bit_register bitr_c = *new bit_register(&hdlc_c, 16);
+    bool k[16] = {
+        false, true, true, false, 
+        false, true, true, false, 
+        false, true, true, false, 
+        false, true, true, false
+    };
+
+    bool i[16] = {
+        false, false, false, false,
+        false, false, false, false,
+        false, false, false, false,
+        false, false, false, true
+    };
 
     auto cycle_delay = 100;
 	auto last_cycle = high_resolution_clock::now();
@@ -49,9 +61,11 @@ int main() {
             cycles++;
             
             if (cycles == 20) {
-                bitr_c.LOAD(k, true);
+                ram_c.LOAD(k, true, i);
+            } else if (cycles == 25) {
+                ram_c.LOAD(i, true, i);
             }
-            cout << cycles << " : " << bitr_c.PRINT() << endl;
+            cout << cycles << " : " << bool_to_str(ram_c.GET(i)) << endl;
 
             dff::update_dffs();
 			last_cycle = current;

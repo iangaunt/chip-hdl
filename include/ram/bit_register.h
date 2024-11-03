@@ -18,6 +18,7 @@ class bit_register {
         bit_register(hdlc* chip, int wid);
 
         bool* LOAD(bool* in, bool load);
+        bool* VALUE();
         string PRINT();
 };
 

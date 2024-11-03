@@ -44,6 +44,20 @@ bool* bit_register::LOAD(bool* in, bool load) {
 }
 
 /**
+ * Builds a new 16-bit boolean value from the register's bits.
+ * 
+ * @return The 16-bit boolean value read from the register.
+ */
+bool* bit_register::VALUE() {
+    bool* out = new bool[16];
+    for (int i = 0; i < 16; i++) {
+        bit* b = bits[i];
+        out[i] = b->VALUE();
+    }
+    return out;
+}
+
+/**
  * Prints out the value of the bit register.
  * 
  * @return A string of `1`s and `0`s for `true`/`false` values.
