@@ -13,7 +13,12 @@
                 "-L${workspaceFolder}/lib",
 
                 "${workspaceFolder}/src/ram/*.cpp",
+                "${workspaceFolder}/src/screen/*.cpp",
                 "${workspaceFolder}/src/*.cpp",
+                
+                "-lmingw32",
+                "-lSDL2main",
+                "-lSDL2",
 
                 "-o",
                 "${workspaceFolder}/chip.exe"

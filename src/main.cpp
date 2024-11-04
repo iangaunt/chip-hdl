@@ -11,6 +11,8 @@
 #include "ram/bit.h"
 #include "ram/dff.h"
 
+#include "screen/display.h"
+
 using std::chrono::duration;
 using std::chrono::high_resolution_clock;
 using std::chrono::milliseconds;
@@ -27,24 +29,26 @@ string bool_to_str(bool* b) {
     return result;
 }
 
-int main() {
+int main(int argv, char** args) {
     hdlc hdlc_c = *new hdlc();
     arith arith_c = *new arith(&hdlc_c);
-    ram ram_c = *new ram(&hdlc_c, 16384);
+    ram ram_c = *new ram(&hdlc_c, 32768);
+    display display_c = *new display(512, 256);
 
-    bit_register bitr_c = *new bit_register(&hdlc_c, 16);
+    display_c.init();
+
     bool k[16] = {
-        false, true, true, false, 
-        false, true, true, false, 
-        false, true, true, false, 
-        false, true, true, false
+        false, true, false, false,
+        true, false, true, true,
+        false, true, true, false,
+        false, true, false, false
     };
 
-    bool i[16] = {
-        false, false, false, false,
-        false, false, false, false,
-        false, false, false, false,
-        false, false, false, true
+    bool b[16] = {
+        true, true, true, false,
+        true, true, true, true,
+        true, true, true, true,
+        true, true, true, true
     };
 
     auto cycle_delay = 100;
@@ -53,26 +57,32 @@ int main() {
     int max_clock = INT32_MAX;
     int clock = 0, cycles = 0;
 
-    while (cycles < 30 && clock < max_clock) {
+    while (cycles < 50 && clock < max_clock && !display_c.quit) {
         auto current = high_resolution_clock::now();
 	    float delay = duration<float, milliseconds::period>(current - last_cycle).count();
 
         if (delay > cycle_delay) {
             cycles++;
-            
-            if (cycles == 20) {
-                ram_c.LOAD(k, true, i);
-            } else if (cycles == 25) {
-                ram_c.LOAD(i, true, i);
+            cout << cycles << endl;
+
+            if (cycles == 1) {
+                ram_c.LOAD(b, true, k);
+                k[15] = true;
+                ram_c.LOAD(b, true, k);
+                k[14] = true;
+                k[15] = false;
+                ram_c.LOAD(b, true, k);
             }
-            cout << cycles << " : " << bool_to_str(ram_c.GET(i)) << endl;
 
             dff::update_dffs();
+            display_c.poll();
+            display_c.read(&ram_c, &arith_c);
 			last_cycle = current;
 		}
 
         clock++;
     }
-    
+
+    display_c.end();
     return 0;
 }
