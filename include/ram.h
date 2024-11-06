@@ -15,6 +15,10 @@ class ram {
         vector<bit_register*> mem;
         int size;
 
+        bool* d = new bool[16];
+        bool* a = new bool[16];
+        bool* m = new bool[16];
+
         ram(hdlc* chip, int s);
         int INDEX(bool* in);
         bool* LOAD(bool* in, bool load, bool* k);

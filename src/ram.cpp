@@ -16,6 +16,12 @@ ram::ram(hdlc* chip, int s) {
     size = s;
     mem = *new vector<bit_register*>;
 
+    for (int i = 0; i < 16; i++) {
+		d[i] = false;
+		a[i] = false;
+		m[i] = false;
+	}
+
     for (int i = 0; i < size; i++) {
         mem.push_back(new bit_register(chip, 16));
     }

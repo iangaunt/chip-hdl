@@ -3,15 +3,18 @@
 #include <iostream>
 #include <string>
 
-#include "arith.h"
-#include "hdlc.h"
-#include "ram.h"
+#include "compiler/instruction.h"
+#include "compiler/reader.h"
 
 #include "ram/bit_register.h"
 #include "ram/bit.h"
 #include "ram/dff.h"
 
 #include "screen/display.h"
+
+#include "arith.h"
+#include "hdlc.h"
+#include "ram.h"
 
 using std::chrono::duration;
 using std::chrono::high_resolution_clock;
@@ -30,12 +33,27 @@ string bool_to_str(bool* b) {
 }
 
 int main(int argv, char** args) {
+    // rom location
+    const char* location = "C:/Users/ianga/Desktop/Codespaces/chip-hdl/src/asm/add.asm";
+
+    // chip parts
     hdlc hdlc_c = *new hdlc();
     arith arith_c = *new arith(&hdlc_c);
     ram ram_c = *new ram(&hdlc_c, 32768);
-    display display_c = *new display(512, 256);
 
+    // display
+    display display_c = *new display(512, 256);
     display_c.init();
+
+    // reader
+    reader reader_c = *new reader(&ram_c);
+
+    vector<char> ch = *reader_c.read_asm(location);
+    vector<instruction*> instr = reader_c.read_instructions(ch);
+    
+    cout << bool_to_str(ram_c.a) << endl;
+    instr[0]->run(&ram_c);
+    cout << bool_to_str(ram_c.a) << endl;
 
     bool k[16] = {
         false, true, false, false,
@@ -45,7 +63,7 @@ int main(int argv, char** args) {
     };
 
     bool b[16] = {
-        true, true, true, false,
+        true, true, true, true,
         true, true, true, true,
         true, true, true, true,
         true, true, true, true
@@ -63,16 +81,8 @@ int main(int argv, char** args) {
 
         if (delay > cycle_delay) {
             cycles++;
-            cout << cycles << endl;
 
-            if (cycles == 1) {
-                ram_c.LOAD(b, true, k);
-                k[15] = true;
-                ram_c.LOAD(b, true, k);
-                k[14] = true;
-                k[15] = false;
-                ram_c.LOAD(b, true, k);
-            }
+            ram_c.LOAD(b, true, k);
 
             dff::update_dffs();
             display_c.poll();

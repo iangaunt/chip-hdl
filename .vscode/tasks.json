@@ -12,8 +12,10 @@
                 "-I${workspaceFolder}/include",
                 "-L${workspaceFolder}/lib",
 
+                "${workspaceFolder}/src/compiler/*.cpp",
                 "${workspaceFolder}/src/ram/*.cpp",
                 "${workspaceFolder}/src/screen/*.cpp",
+                
                 "${workspaceFolder}/src/*.cpp",
                 
                 "-lmingw32",
