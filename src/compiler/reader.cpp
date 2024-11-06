@@ -1,6 +1,7 @@
 #include "compiler/reader.h"
 
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -9,6 +10,8 @@
 
 #include "ram.h"
 
+using std::cout;
+using std::endl;
 using std::ios;
 using std::ios_base;
 using std::ifstream;
@@ -92,8 +95,13 @@ vector<instruction*> reader::read_instructions(vector<char> vec) {
 			}
 
 			case '-': {
+				token_type tt = 
+					tokens.at(tokens.size() - 1)->ttype == token_type::EQUALS
+					? token_type::NEGATIVE
+					: token_type::OPERAND;
+
 				tokens.push_back(
-                    new token(token_type::NEGATIVE, "-")
+                    new token(tt, "-")
                 );
                 break;
 			}
@@ -109,8 +117,20 @@ vector<instruction*> reader::read_instructions(vector<char> vec) {
 		}
 	
 		if (c == 'A' || c == 'D' || c == 'M') {
+			string tok = "";
+			tok += c;
+
 			tokens.push_back(
-				new token(token_type::REGISTER, c + "")
+				new token(token_type::REGISTER, tok)
+			);
+		}
+
+		if (c == '&' || c == '|' || c == '+') {
+			string tok = "";
+			tok += c;
+
+			tokens.push_back(
+				new token(token_type::OPERAND, tok)
 			);
 		}
 	}

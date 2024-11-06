@@ -51,9 +51,11 @@ int main(int argv, char** args) {
     vector<char> ch = *reader_c.read_asm(location);
     vector<instruction*> instr = reader_c.read_instructions(ch);
     
-    cout << bool_to_str(ram_c.a) << endl;
+    cout << bool_to_str(ram_c.d) << endl;
     instr[0]->run(&ram_c);
-    cout << bool_to_str(ram_c.a) << endl;
+    instr[1]->run(&ram_c);
+    instr[2]->run(&ram_c);
+    cout << bool_to_str(ram_c.d) << endl;
 
     bool k[16] = {
         false, true, false, false,
