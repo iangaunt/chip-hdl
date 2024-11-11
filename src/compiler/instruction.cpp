@@ -19,6 +19,11 @@ vector<vector<token_type>> syntax {
         token_type::OPERAND, token_type::NUMBER
     }, 
 
+    // A instruction: @reg
+	{
+        token_type::OPERAND, token_type::REGISTER
+    }, 
+
     // C instruction: reg = num
 	{
         token_type::REGISTER, token_type::EQUALS, token_type::NUMBER
@@ -274,8 +279,23 @@ void instruction::run(ram* r) {
             break;         
         }
 
+        // A instruction: @reg
+        case 1: { 
+            if (tokens[0]->ttype != token_type::OPERAND && tokens[0]->character != "@") 
+                return throw_err("ERROR: A instruction contains malformed introductory token");
+
+            bool* reg1 = fetch_register(tokens[1]->character, r);
+            if (reg1 == nullptr) 
+                return throw_err("ERROR: A instruction contains malformed introductory register");
+
+            r->a = reg1;
+            r->m = r->GET(r->a);
+
+            break;         
+        }
+
         // C instruction: reg = num
-        case 1: {
+        case 2: {
             bool* reg1 = fetch_register(tokens[0]->character, r);
             if (reg1 == nullptr) 
                 return throw_err("ERROR: C instruction contains malformed introductory register");
@@ -288,7 +308,7 @@ void instruction::run(ram* r) {
         }
 
         // C instruction: reg1 = reg2
-        case 2: {
+        case 3: {
             bool* reg1 = fetch_register(tokens[0]->character, r);
             if (reg1 == nullptr) 
                 return throw_err("ERROR: C instruction contains malformed introductory register");
@@ -303,7 +323,7 @@ void instruction::run(ram* r) {
         }
 
         // C instruction: reg1 = reg1 + reg2
-        case 3: {
+        case 4: {
             bool* reg1 = fetch_register(tokens[0]->character, r);
             if (reg1 == nullptr) 
                 return throw_err("ERROR: C instruction contains malformed introductory register");
@@ -326,7 +346,7 @@ void instruction::run(ram* r) {
         }
 
         // C instruction: reg1 = reg1 + num
-        case 4: {
+        case 5: {
             bool* reg1 = fetch_register(tokens[0]->character, r);
             if (reg1 == nullptr) 
                 return throw_err("ERROR: C instruction contains malformed introductory register");
@@ -349,7 +369,7 @@ void instruction::run(ram* r) {
         }
 
         // C instruction: reg1 ; logical > @xxx
-        case 5: {
+        case 6: {
             bool* reg1 = fetch_register(tokens[0]->character, r);
             if (reg1 == nullptr) 
                 return throw_err("ERROR: C instruction contains malformed introductory register");
@@ -363,7 +383,7 @@ void instruction::run(ram* r) {
         }
 
         // C instruction: reg1 op reg2 ; logical > @xxx
-        case 6: {
+        case 7: {
             bool* reg1 = fetch_register(tokens[0]->character, r);
             if (reg1 == nullptr) 
                 return throw_err("ERROR: C instruction contains malformed introductory register");
@@ -386,7 +406,7 @@ void instruction::run(ram* r) {
         }
 
         // C instruction: reg1 op number ; logical > @xxx
-        case 7: {
+        case 8: {
             bool* reg1 = fetch_register(tokens[0]->character, r);
             if (reg1 == nullptr) 
                 return throw_err("ERROR: C instruction contains malformed introductory register");

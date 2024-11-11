@@ -52,18 +52,19 @@ int main(int argv, char** args) {
     vector<instruction*> instr = reader_c.read_instructions(ch);
 
     // clock specs
-    auto cycle_delay = 100;
+    auto cycle_delay = 10;
 	auto last_cycle = high_resolution_clock::now();
 
     int max_clock = INT32_MAX;
+    int max_cycles = 1000;
     int clock = 0, cycles = 0;
 
     // program loop
-    while (cycles < 50 && clock < max_clock && !display_c.quit) {
+    while (cycles < max_cycles && clock < max_clock && !display_c.quit) {
         auto current = high_resolution_clock::now();
 	    float delay = duration<float, milliseconds::period>(current - last_cycle).count();
 
-        if (delay > cycle_delay) {
+        if (delay >= cycle_delay) {
             cycles++;
 
             if (ram_c.pc < instr.size()) {
