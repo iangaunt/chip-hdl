@@ -63,7 +63,50 @@ vector<instruction*> reader::read_instructions(vector<char> vec) {
 	vector<token*> tokens = *new vector<token*>();
 	vector<instruction*> instructions = *new vector<instruction*>();
 
+	bool comment = false;
+
+	bool c_log = false;
+	bool logical = false;
+
 	for (char c : vec) {
+		// Ignore whitespace.
+		if (c == ' ') continue;
+
+		// Toggles comment - if there is a slash, ignore entire line.
+		if (c == '/') comment = true;
+		if (comment) {
+			if (c == '.') comment = false;
+			continue;
+		}
+
+		// If the line contains a logical comparison, build the logical specifier.
+		if (logical) {
+			c_log = true;
+			if (c == '.' || c == '>') {
+				logical = false;
+				c_log = false;
+
+				tokens.push_back(
+					new token(token_type::LOGICAL, running)
+				);
+
+				if (c == '>') {
+					tokens.push_back(
+						new token(token_type::ARROW, ">")
+					);
+
+					itype = instruction_type::C;
+					c_log = true;
+					running = "";
+				}
+				continue;
+			}
+
+			running += c;
+			continue;
+		}
+
+		// If there is a number, add it to the token list.
 		if (isdigit(c)) {
 			running += c;
 		} else {
@@ -75,12 +118,13 @@ vector<instruction*> reader::read_instructions(vector<char> vec) {
 			}
 		}
 
+		// Switch case for operands with basic character assignments.
 		switch (c) {
 			case '@': {
 				tokens.push_back(
 					new token(token_type::OPERAND, "@")
 				);
-				itype = instruction_type::A;
+				if (!c_log) itype = instruction_type::A;
 
 				break;
 			}
@@ -90,6 +134,17 @@ vector<instruction*> reader::read_instructions(vector<char> vec) {
 					new token(token_type::EQUALS, "=")
 				);
 				itype = instruction_type::C;
+
+				break;
+			}
+
+			case ';': {
+				tokens.push_back(
+					new token(token_type::SEMICOLON, ";")
+				);
+				itype = instruction_type::C;
+				logical = true;
+				running = "";
 
 				break;
 			}
@@ -116,6 +171,7 @@ vector<instruction*> reader::read_instructions(vector<char> vec) {
 			}
 		}
 	
+		// Adds register tokens for D, A, and M.
 		if (c == 'A' || c == 'D' || c == 'M') {
 			string tok = "";
 			tok += c;
@@ -125,6 +181,7 @@ vector<instruction*> reader::read_instructions(vector<char> vec) {
 			);
 		}
 
+		// Adds operator operands for +, &, and | (- has special behaviors).
 		if (c == '&' || c == '|' || c == '+') {
 			string tok = "";
 			tok += c;

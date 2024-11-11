@@ -12,7 +12,11 @@ enum token_type {
 
     REGISTER,
     CONDITION,
-    OPERAND
+    OPERAND,
+
+    SEMICOLON,
+    LOGICAL,
+    ARROW
 };
 
 class token {

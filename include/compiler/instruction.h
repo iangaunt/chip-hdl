@@ -10,10 +10,7 @@
 using std::string;
 using std::vector;
 
-enum instruction_type {
-    A,
-    C
-};
+enum instruction_type { A, C };
 
 class instruction {
     public:

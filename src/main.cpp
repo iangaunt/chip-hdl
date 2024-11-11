@@ -70,6 +70,7 @@ int main(int argv, char** args) {
                 instruction* instr_c = instr[ram_c.pc];   
                 instr_c->run(&ram_c);
                 ram_c.LOAD(ram_c.m, true, ram_c.a);
+                
                 ram_c.pc++;
             }
 
