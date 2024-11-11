@@ -73,6 +73,7 @@ void display::read(ram* r, arith* a) {
         index[i] = false;
     }
     index[1] = true;
+    index[2] = true;
     
     int* pixels = new int[width * height];
 

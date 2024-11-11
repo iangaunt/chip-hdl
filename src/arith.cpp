@@ -114,6 +114,13 @@ bool* arith::INC16(bool* a) {
     return ADD16(a, one);
 }
 
+bool* arith::NEG16(bool* a) {
+    bool* res = a;
+    res = hdl->NOT16(res);
+    res = INC16(res);
+    return res;
+}
+
 /**
  * Performs arithmetic logic manipulation on two 16-bit boolean input values and calculates
  * their results using six flags passed into the chip. Returns a 16-bit boolean value and a 

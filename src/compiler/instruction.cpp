@@ -12,9 +12,60 @@ using std::endl;
 using std::string;
 using std::vector;
 
+vector<vector<token_type>> syntax{
+	{token_type::OPERAND, token_type::NUMBER}, // A instruction: @xxx
+	{token_type::REGISTER, token_type::EQUALS, token_type::NUMBER}, // C instruction: reg = num
+	{token_type::REGISTER, token_type::EQUALS, token_type::REGISTER}, // C instruction: reg1 = reg2
+	{token_type::REGISTER, token_type::EQUALS, token_type::REGISTER, token_type::OPERAND, token_type::REGISTER}, // C instruction: reg1 = reg1 + reg2
+	{token_type::REGISTER, token_type::EQUALS, token_type::REGISTER, token_type::OPERAND, token_type::NUMBER} // C instruction: reg1 = reg1 + number
+};
+
+int syntax_match(vector<token*> tokens) {
+	for (int i = 0; i < syntax.size(); i++) {
+		if (tokens.size() != syntax[i].size()) continue;
+		
+        bool correct = true;
+		for (int j = 0; j < syntax[i].size(); j++) {
+			if (tokens[j]->ttype != syntax[i][j]) {
+                correct = false;
+            }
+		}
+
+		if (correct) return i;
+	}
+
+	return -1;
+}
+
+bool* fetch_register(string reg, ram* r) {
+    if (reg == "D") return r->d;
+    if (reg == "A") return r->a; 
+    if (reg == "M") return r->m;
+    return nullptr;
+}
+
+bool* perform_operation(bool* reg1, bool* reg2, string op, ram* r) {
+    bool* res = nullptr;
+
+    hdlc* hdl = r->hdl;
+    arith* ar = r->ar;
+
+    if (op == "+") {
+        res = ar->ADD16(reg1, reg2);
+    } else if (op == "-") {
+        res = ar->ADD16(reg1, ar->NEG16(reg2));
+    } else if (op == "&") {
+        res = hdl->AND16(reg1, reg2);
+    } else if (op == "|") {
+        res = hdl->OR16(reg1, reg2);
+    }
+
+    return res;
+}
+
 bool* itob(int loc) {
     bool* b = new bool[16];
-    int amount = 65536;
+    int amount = 32768;
 
     for (int i = 0; i < 16; i++) {
         b[i] = loc >= amount;
@@ -33,6 +84,22 @@ string btos(bool* b) {
     return result;
 }
 
+void print_instruction(vector<token*> tokens) {
+    string j = "";
+    for (int i = 0; i < tokens.size(); i++) {
+        j += tokens[i]->character;
+    }
+    cout << j << endl;
+}
+
+void print_types(vector<token*> tokens) {
+    string j = "";
+    for (int i = 0; i < tokens.size(); i++) {
+        j += tokens[i]->ttype + '0';
+    }
+    cout << j << endl;
+}
+
 instruction::instruction(instruction_type it, vector<token*> tok) {
     itype = it;
     tokens = tok;
@@ -44,64 +111,99 @@ void instruction::throw_err(string msg) {
 }
 
 void instruction::run(ram* r) {
-    string j = "";
-    for (int i = 0; i < tokens.size(); i++) {
-        j += tokens[i]->character;
-    }
-    cout << j << endl;
+    int syntax_index = syntax_match(tokens);
+    if (syntax_index == -1) return;
 
-    if (itype == instruction_type::A) {
-        if (tokens.size() != 2) 
-            return throw_err("ERROR: A instruction has improper number of tokens");
+    switch (syntax_index) {
+        // A instruction: @xxx
+        case 0: { 
+            if (tokens[0]->ttype != token_type::OPERAND && tokens[0]->character != "@") 
+                return throw_err("ERROR: A instruction contains malformed introductory token");
 
-        if (tokens[0]->ttype != token_type::OPERAND && tokens[0]->character != "@") 
-            return throw_err("ERROR: A instruction contains malforms introductory token");
+            string t = tokens[1]->character;
+            char* ct = new char[t.size()];
+            for (int i = 0; i < t.size(); i++) {
+                ct[i] = t[i];
+            }
 
-        string t = tokens[1]->character;
-        char* ct = new char[t.size()];
-        for (int i = 0; i < t.size(); i++) {
-            ct[i] = t[i];
+            r->a = itob(atoi(ct));
+            r->m = r->GET(r->a);   
+
+            break;         
         }
 
-        r->a = itob(atoi(ct));
-        r->m = r->GET(r->a);
-    }
+        // C instruction: reg = num
+        case 1: {
+            bool* reg1 = fetch_register(tokens[0]->character, r);
+            if (reg1 == nullptr) 
+                return throw_err("ERROR: C instruction contains malformed introductory register");
 
-    if (itype == instruction_type::C) {
-        if (tokens.size() < 3 || tokens.size() > 5) 
-            return throw_err("ERROR: C instruction has improper number of tokens");
-
-        bool* reg1 = nullptr;
-        if (tokens[0]->ttype != token_type::REGISTER)
-            return throw_err("ERROR: C instruction does not start with REGISTER token");
-
-        if (tokens[0]->character == "D") reg1 = r->d;
-        if (tokens[0]->character == "A") reg1 = r->a; 
-        if (tokens[0]->character == "M") reg1 = r->m;
-        
-        if (tokens[2]->ttype == token_type::NUMBER) {
-            int dest = atoi(tokens[2]->character.c_str());
+            token* num = tokens[2];
+            int dest = atoi(num->character.c_str());
             reg1 = itob(dest);
-        } else if (tokens[2]->ttype == token_type::REGISTER) {
-            token* treg1 = tokens[2];
-            bool* reg2 = nullptr;
+
+            break;
+        }
+
+        // C instruction: reg1 = reg2
+        case 2: {
+            bool* reg1 = fetch_register(tokens[0]->character, r);
+            if (reg1 == nullptr) 
+                return throw_err("ERROR: C instruction contains malformed introductory register");
+
+            bool* reg2 = fetch_register(tokens[2]->character, r);
+            if (reg2 == nullptr) 
+                return throw_err("ERROR: C instruction contains malformed secondary register");
+
+            for (int i = 0; i < 16; i++) reg1[i] = reg2[i];
+
+            break;
+        }
+
+        // C instruction: reg1 = reg1 + reg2
+        case 3: {
+            bool* reg1 = fetch_register(tokens[0]->character, r);
+            if (reg1 == nullptr) 
+                return throw_err("ERROR: C instruction contains malformed introductory register");
+
+            if (tokens[0]->character != tokens[2]->character)
+                return throw_err("ERROR: C instruction must start with referenced register");
+
+            bool* reg2 = fetch_register(tokens[4]->character, r);
+            if (reg2 == nullptr) 
+                return throw_err("ERROR: C instruction contains malformed secondary register");
+
+            bool* res = nullptr;
+            res = perform_operation(reg1, reg2, tokens[3]->character, r);
+            if (res == nullptr) 
+                return throw_err("ERROR: C instruction contains unknown operation");
             
-            if (treg1->character == tokens[0]->character) {
-                token* creg2 = tokens[4];
-                token* cop = tokens[3];
+            for (int i = 0; i < 16; i++) reg1[i] = res[i];
 
-                if (creg2->ttype == token_type::NUMBER) {
-                    
-                } else {
+            break;
+        }
 
-                }
-            } else {
-                if (treg1->character == "D") reg2 = r->d;
-                if (treg1->character == "A") reg2 = r->a; 
-                if (treg1->character == "M") reg2 = r->m;
+        // C instruction: reg1 = reg1 + num
+        case 4: {
+            bool* reg1 = fetch_register(tokens[0]->character, r);
+            if (reg1 == nullptr) 
+                return throw_err("ERROR: C instruction contains malformed introductory register");
 
-                for (int i = 0; i < 16; i++) reg1[i] = reg2[i];
-            }
+            if (tokens[0]->character != tokens[2]->character)
+                return throw_err("ERROR: C instruction must start with referenced register");
+
+            token* num = tokens[4];
+            int dest = atoi(num->character.c_str());
+            bool* bin = itob(dest); 
+
+            bool* res = nullptr;
+            res = perform_operation(reg1, bin, tokens[3]->character, r);
+            if (res == nullptr) 
+                return throw_err("ERROR: C instruction contains unknown operation");
+            
+            for (int i = 0; i < 16; i++) reg1[i] = res[i];
+
+            break;
         }
     }
 

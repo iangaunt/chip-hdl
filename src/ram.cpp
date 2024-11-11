@@ -4,6 +4,8 @@
 
 #include "ram/bit_register.h"
 #include "ram/bit.h"
+
+#include "arith.h"
 #include "hdlc.h"
 
 /**
@@ -11,10 +13,13 @@
  * 
  * @param chip The `hdlc` for operations.
  */
-ram::ram(hdlc* chip, int s) {
+ram::ram(hdlc* chip, arith* arch, int s) {
     hdl = chip;
+    ar = arch;
     size = s;
+
     mem = *new vector<bit_register*>;
+    pc = 0;
 
     for (int i = 0; i < 16; i++) {
 		d[i] = false;

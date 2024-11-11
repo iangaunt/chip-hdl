@@ -27,7 +27,7 @@ using std::string;
 string bool_to_str(bool* b) {
     string result = "";
     for (int i = 0; i < 16; i++) {
-        result += b[i]? "1" : "0";
+        result += b[i] ? "1" : "0";
     }
     return result;
 }
@@ -39,7 +39,7 @@ int main(int argv, char** args) {
     // chip parts
     hdlc hdlc_c = *new hdlc();
     arith arith_c = *new arith(&hdlc_c);
-    ram ram_c = *new ram(&hdlc_c, 32768);
+    ram ram_c = *new ram(&hdlc_c, &arith_c, 32768);
 
     // display
     display display_c = *new display(512, 256);
@@ -50,33 +50,15 @@ int main(int argv, char** args) {
 
     vector<char> ch = *reader_c.read_asm(location);
     vector<instruction*> instr = reader_c.read_instructions(ch);
-    
-    cout << bool_to_str(ram_c.d) << endl;
-    instr[0]->run(&ram_c);
-    instr[1]->run(&ram_c);
-    instr[2]->run(&ram_c);
-    cout << bool_to_str(ram_c.d) << endl;
 
-    bool k[16] = {
-        false, true, false, false,
-        true, false, true, true,
-        false, true, true, false,
-        false, true, false, false
-    };
-
-    bool b[16] = {
-        true, true, true, true,
-        true, true, true, true,
-        true, true, true, true,
-        true, true, true, true
-    };
-
+    // clock specs
     auto cycle_delay = 100;
 	auto last_cycle = high_resolution_clock::now();
 
     int max_clock = INT32_MAX;
     int clock = 0, cycles = 0;
 
+    // program loop
     while (cycles < 50 && clock < max_clock && !display_c.quit) {
         auto current = high_resolution_clock::now();
 	    float delay = duration<float, milliseconds::period>(current - last_cycle).count();
@@ -84,10 +66,16 @@ int main(int argv, char** args) {
         if (delay > cycle_delay) {
             cycles++;
 
-            ram_c.LOAD(b, true, k);
+            if (ram_c.pc < instr.size()) {
+                instruction* instr_c = instr[ram_c.pc];   
+                instr_c->run(&ram_c);
+                ram_c.LOAD(ram_c.m, true, ram_c.a);
+                ram_c.pc++;
+            }
 
             dff::update_dffs();
             display_c.poll();
+
             display_c.read(&ram_c, &arith_c);
 			last_cycle = current;
 		}

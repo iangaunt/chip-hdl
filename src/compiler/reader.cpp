@@ -87,7 +87,7 @@ vector<instruction*> reader::read_instructions(vector<char> vec) {
 
 			case '=': {
 				tokens.push_back(
-					new token(token_type::OPERAND, "=")
+					new token(token_type::EQUALS, "=")
 				);
 				itype = instruction_type::C;
 

@@ -16,6 +16,7 @@ class arith {
         bool* FULLADD(bool a, bool b, bool c);
         bool* ADD16(bool* a, bool* b);
         bool* INC16(bool* a);
+        bool* NEG16(bool* a);
 
         bool* ALU(bool* x, bool* y, bool zx, bool nx, bool zy, bool ny, bool f, bool no);
 };
