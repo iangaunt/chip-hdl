@@ -33,7 +33,7 @@ string bool_to_str(bool* b) {
 }
 
 int main(int argv, char** args) {
-    // rom location
+    // asm location
     const char* location = "C:/Users/ianga/Desktop/Codespaces/chip-hdl/src/asm/add.asm";
 
     // chip parts

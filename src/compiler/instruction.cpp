@@ -12,6 +12,7 @@ using std::endl;
 using std::string;
 using std::vector;
 
+// The vector of syntax directives. Instructions are parsed again.
 vector<vector<token_type>> syntax {
     // A instruction: @xxx
 	{
@@ -61,6 +62,13 @@ vector<vector<token_type>> syntax {
     } 
 };
 
+/**
+ * Parses the list of tokens against the syntax tree to determine
+ * what type of behavior is stored in this instruction.
+ * 
+ * @param tokens The list of tokens to parse.
+ * @return The index of the token match in the syntax list.
+ */
 int syntax_match(vector<token*> tokens) {
 	for (int i = 0; i < syntax.size(); i++) {
 		if (tokens.size() != syntax[i].size()) continue;
@@ -78,6 +86,15 @@ int syntax_match(vector<token*> tokens) {
 	return -1;
 }
 
+/**
+ * Fetches the register address from the ram depending on the 
+ * character of the register token. The ram object contains a `D`,
+ * `A` and `M` flag which can be modified.A
+ * 
+ * @param reg The register string.
+ * @param r The `ram` object to fetch from.
+ * @return The address of the specified register or a `nullptr`.
+ */
 bool* fetch_register(string reg, ram* r) {
     if (reg == "D") return r->d;
     if (reg == "A") return r->a; 
@@ -85,6 +102,14 @@ bool* fetch_register(string reg, ram* r) {
     return nullptr;
 }
 
+/**
+ * Compares a logical gate with a 16-register output and returns
+ * the results of the comparison.
+ * 
+ * @param reg The contents to compare against.
+ * @param logical The logical flag.
+ * @return The results of the comparison against the logic gate.
+ */
 bool compare_logical(bool* reg, string logical) {
     // JMP requires no criteria.
     if (logical == "JMP") return true;
@@ -110,6 +135,16 @@ bool compare_logical(bool* reg, string logical) {
     return true;
 }
 
+/**
+ * Performs a mathematical operation on the two register inputs
+ * depending on the input operator. 
+ * 
+ * @param reg1 The first register contents.
+ * @param reg2 The second register contents.
+ * @param op The operator string - either `+`, `-`, `&`, or `|`.
+ * @param r The `ram` object - used for the arithmetic and hdl chips.
+ * @return The result of the operation, or a `nullptr` if the operation is invalid.
+ */
 bool* perform_operation(bool* reg1, bool* reg2, string op, ram* r) {
     bool* res = nullptr;
 
@@ -129,6 +164,12 @@ bool* perform_operation(bool* reg1, bool* reg2, string op, ram* r) {
     return res;
 }
 
+/** 
+ * Converts an integer to a 16-bit boolean value.
+ * 
+ * @param loc The integer value memory location.
+ * @return The 16-bit boolean value representing that integer.
+ */
 bool* itob(int loc) {
     bool* b = new bool[16];
     int amount = 32768;
@@ -142,6 +183,12 @@ bool* itob(int loc) {
     return b;
 }
 
+/**
+ * Outputs a boolean string represenation of the input boolean value.
+ * 
+ * @param b The 16-bit input boolean value.
+ * @return A `string` value containing the contents of the array.
+ */
 string btos(bool* b) {
     string result = "";
     for (int i = 0; i < 16; i++) {
@@ -150,6 +197,12 @@ string btos(bool* b) {
     return result;
 }
 
+/**
+ * Converts a string value to an integer value.
+ * 
+ * @param s The input `string` value.
+ * @return The output integer value.
+ */
 int stoint(string s) {
     char* ct = new char[s.size()];
     for (int i = 0; i < s.size(); i++) {
@@ -159,7 +212,30 @@ int stoint(string s) {
     return atoi(ct);
 }
 
-void print_instruction(vector<token*> tokens) {
+/**
+ * Creates a new `instruction` object.
+ * 
+ * @param it The instruction type.
+ * @param tok The list of tokens for the instruction.
+ */
+instruction::instruction(instruction_type it, vector<token*> tok) {
+    itype = it;
+    tokens = tok;
+}
+
+/**
+ * Throws an error message in the terminal and halts the instruction.
+ * @param msg The message to output.
+ */
+void instruction::throw_err(string msg) {
+    cout << msg << endl;
+    return;
+}
+
+/**
+ * Prints out the contents of the instruction.
+ */
+void instruction::print_instruction() {
     string j = "";
     for (int i = 0; i < tokens.size(); i++) {
         j += tokens[i]->character;
@@ -167,24 +243,15 @@ void print_instruction(vector<token*> tokens) {
     cout << j << endl;
 }
 
-void print_types(vector<token*> tokens) {
-    string j = "";
-    for (int i = 0; i < tokens.size(); i++) {
-        j += tokens[i]->ttype + '0';
-    }
-    cout << j << endl;
-}
 
-instruction::instruction(instruction_type it, vector<token*> tok) {
-    itype = it;
-    tokens = tok;
-}
-
-void instruction::throw_err(string msg) {
-    cout << msg << endl;
-    return;
-}
-
+/**
+ * Runs the content of the instruction on the designated `ram` object.
+ * This will ONLY modify the contents of the ram's flags and will NOT
+ * actually apply any changes to the contents of the file; only loading
+ * the contents of the flags into the internal indices will edit the memory.
+ * 
+ * @param r The `ram` object to apply.
+ */
 void instruction::run(ram* r) {
     int syntax_index = syntax_match(tokens);
     if (syntax_index == -1) return;

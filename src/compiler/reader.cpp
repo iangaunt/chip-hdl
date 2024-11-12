@@ -17,10 +17,21 @@ using std::ios_base;
 using std::ifstream;
 using std::string;
 
+/**
+ * Creates a new reader object.
+ * 
+ * @param chip The `ram` object to perform calculations upon.
+ */
 reader::reader(ram* chip) {
 	r = chip;
 }
 
+/**
+ * Calculates the size of a file at the location `filename`.
+ * 
+ * @param filename The location of the file.
+ * @return The length of the file.
+ */
 int reader::filesize(const char* filename) {
 	ifstream in(filename, ios_base::binary | ios_base::ate);
 
@@ -34,6 +45,12 @@ int reader::filesize(const char* filename) {
     return -1;
 }
 
+/**
+ * Reads the contents of the assembly file at the location `filename`.
+ * 
+ * @param filename The location of the file.
+ * @return A vector of characters containins the contents of the file.
+ */
 vector<char>* reader::read_asm(const char* filename) {
 	ifstream in(filename, ios_base::binary | ios_base::ate);
 
@@ -56,6 +73,13 @@ vector<char>* reader::read_asm(const char* filename) {
 	return new vector<char>();
 }
 
+/**
+ * Reads the instructions character by character and constructs a series of instructions,
+ * containing a vector of tokens and the types of instruction.
+ * 
+ * @param vec The vector containing the tokens to parse.
+ * @return The list of instructions.
+ */
 vector<instruction*> reader::read_instructions(vector<char> vec) {
 	string running = "";
 	instruction_type itype;

@@ -32,6 +32,12 @@ ram::ram(hdlc* chip, arith* arch, int s) {
     }
 }
 
+/**
+ * Calculates the integer representation of a boolean index value.
+ * 
+ * @param k The 16-bit input boolean value.
+ * @return The integer representation of `k`.
+ */
 int ram::INDEX(bool* k) {
     int index = 0;
     for (int i = 0; i < 16; i++) {
@@ -42,6 +48,15 @@ int ram::INDEX(bool* k) {
     return index >> 1;
 }
 
+/**
+ * Attempts to load the contents of `in` into the index `k`, but only
+ * if `load` is true.
+ * 
+ * @param in The 16-bit input boolean value.
+ * @param load The `load` flag for the internal `MUX` gate.
+ * @param k The 16-bit index value.
+ * @return The results of the load operation.
+ */
 bool* ram::LOAD(bool* in, bool load, bool* k) {
     int index = INDEX(k);
     bit_register* b = mem[index];
@@ -50,6 +65,12 @@ bool* ram::LOAD(bool* in, bool load, bool* k) {
     return res;
 }
 
+/**
+ * Gets the value specified at index `k`.
+ * 
+ * @param k The 16-bit index value.
+ * @return The 16-bit value stored at the index `k`.
+ */
 bool* ram::GET(bool* k) {
     int index = INDEX(k);
     bit_register* b = mem[index];

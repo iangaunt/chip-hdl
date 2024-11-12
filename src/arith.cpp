@@ -114,6 +114,13 @@ bool* arith::INC16(bool* a) {
     return ADD16(a, one);
 }
 
+/**
+ * Negates the contents of a 16-bit input boolean value
+ * and returns the two's complement value.
+ * 
+ * @param a The 16-bit input boolean value.
+ * @return The two's complement value of `a`.
+ */
 bool* arith::NEG16(bool* a) {
     bool* res = a;
     res = hdl->NOT16(res);

@@ -21,6 +21,7 @@ class instruction {
 
         void run(ram* r);
         void throw_err(string msg);
+        void print_instruction();
 };
 
 #endif

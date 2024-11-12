@@ -9,12 +9,22 @@
 const signed int ON = 0xFFFFFFFF;
 const signed int OFF = 0xFF000000;
 
+/**
+ * Creates a new `display` object.
+ * 
+ * @param w The width of the window.
+ * @param h The height of the window.
+ */
 display::display(int w, int h) {
     height = h;
     width = w;
     quit = false;
 }
 
+/**
+ * Initializes the display object by generating a new window, renderer,
+ * and texture object for showing graphics from the memory buffer.
+ */
 void display::init() {
     SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -38,6 +48,7 @@ void display::init() {
     if (window == NULL) return;
 }
 
+/** Polls any events that occur on the window. */
 void display::poll() {
     SDL_Event event;
     if (quit == true) end();
@@ -67,6 +78,14 @@ void display::poll() {
     }
 }
 
+/**
+ * Reads in the values of the ram buffer starting from index `24576` and then
+ * reads pixel by pixel into the video buffer. `true` values will turn
+ * white and `false` pixels will turn black.
+ * 
+ * @param r The `ram` chip to read from.
+ * @param a The `arith` chip used for incrementing the pointer index of the memory buffer.
+ */
 void display::read(ram* r, arith* a) {
     bool* index = new bool[16];
     for (int i = 0; i < 16; i++) {
@@ -90,6 +109,7 @@ void display::read(ram* r, arith* a) {
 	SDL_RenderPresent(renderer);
 }
 
+/** Destroys the graphics program. */
 void display::end() {
     SDL_DestroyWindow(window);
     SDL_Quit();
