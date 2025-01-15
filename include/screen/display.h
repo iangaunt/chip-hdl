@@ -6,7 +6,7 @@
 #include <SDL2/SDL.h>
 
 #include "ram/bit.h"
-#include "arith.h"
+#include "alu.h"
 #include "hdlc.h"
 #include "ram.h"
 
@@ -24,7 +24,7 @@ class display {
 
         void init();
         void poll();
-        void read(ram* r, arith* a);
+        void read(ram* r, alu* a);
         void end();
 };
 

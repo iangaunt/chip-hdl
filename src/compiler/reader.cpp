@@ -91,12 +91,13 @@ vector<instruction*> reader::read_instructions(vector<char> vec) {
 
 	bool c_log = false;
 	bool logical = false;
+	bool var = false;
 
 	for (char c : vec) {
 		// Ignore whitespace.
 		if (c == ' ') continue;
 
-		// Toggles comment - if there is a slash, ignore entire line.
+		// Toggles comment - if there  slash, ignore entire line.
 		if (c == '/') comment = true;
 		if (comment) {
 			if (c == '.') comment = false;
@@ -128,6 +129,24 @@ vector<instruction*> reader::read_instructions(vector<char> vec) {
 
 			running += c;
 			continue;
+		}
+
+		// If the next character is a lowercase letter or underscore, then start writing a variable.
+		if ((c >= 'a' && c <= 'z') || c == '_') {
+			var = true;
+		}
+
+		// If the variable flag is on, build the variable from the following characters until a STOP code is met.
+		if (var) {
+			if (c == '.') {
+				var = false;
+				tokens.push_back(
+					new token(token_type::VARIABLE, running)
+				);
+				running = "";
+			} else {
+				running += c;
+			}
 		}
 
 		// If there is a number, add it to the token list.

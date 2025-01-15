@@ -1,12 +1,12 @@
-#ifndef ARITH_H
-#define ARITH_H
+#ifndef ALU_H
+#define ALU_H
 
 #include "hdlc.h"
 
-class arith {
+class alu {
     public:
         hdlc* hdl;
-        arith(hdlc* chip);
+        alu(hdlc* chip);
 
         bool* zero;
         bool* one;

@@ -84,9 +84,9 @@ void display::poll() {
  * white and `false` pixels will turn black.
  * 
  * @param r The `ram` chip to read from.
- * @param a The `arith` chip used for incrementing the pointer index of the memory buffer.
+ * @param a The `alu` chip used for incrementing the pointer index of the memory buffer.
  */
-void display::read(ram* r, arith* a) {
+void display::read(ram* r, alu* a) {
     bool* index = new bool[16];
     for (int i = 0; i < 16; i++) {
         index[i] = false;

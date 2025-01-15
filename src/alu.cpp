@@ -1,4 +1,4 @@
-#include "arith.h"
+#include "alu.h"
 
 #include <bitset>
 #include <iostream>
@@ -9,11 +9,11 @@
 using std::string;
 
 /**
- * Creates a new `arith` object.
+ * Creates a new `alu` object.
  * 
  * @param chip The `hdlc` for operations.
  */
-arith::arith(hdlc* chip) {
+alu::alu(hdlc* chip) {
     hdl = chip;
 
     zero = new bool[16];
@@ -32,7 +32,7 @@ arith::arith(hdlc* chip) {
  * @param bin The 16-bit input boolean value.
  * @return The 16-bit signed integer value.
  */
-int arith::BIN_TO_INT(bool* bin) {
+int alu::BIN_TO_INT(bool* bin) {
     signed int result = bin[0] ? 0b1 : 0b0;
     result <<= 1;
 
@@ -53,7 +53,7 @@ int arith::BIN_TO_INT(bool* bin) {
  * @param b The second input boolean value.
  * @return The 2-bit boolean array containing `{sum, carry}`
  */
-bool* arith::HALFADD(bool a, bool b) {
+bool* alu::HALFADD(bool a, bool b) {
     bool* out = new bool[2];
 
     out[0] = hdl->XOR(a, b);
@@ -70,7 +70,7 @@ bool* arith::HALFADD(bool a, bool b) {
  * @param c The third input boolean value.
  * @return The 2-bit boolean array containing `{sum, carry}`
  */
-bool* arith::FULLADD(bool a, bool b, bool c) {
+bool* alu::FULLADD(bool a, bool b, bool c) {
     bool* out = new bool[2];
 
     bool* half_add_ab = HALFADD(a, b);
@@ -90,7 +90,7 @@ bool* arith::FULLADD(bool a, bool b, bool c) {
  * @param b The second 16-bit input boolean value.
  * @return The 16-bit sum boolean value.
  */
-bool* arith::ADD16(bool* a, bool* b) {
+bool* alu::ADD16(bool* a, bool* b) {
     bool* out = new bool[16];
     bool carry = false;
 
@@ -110,7 +110,7 @@ bool* arith::ADD16(bool* a, bool* b) {
  * @param a The 16-bit input boolean value.
  * @return The 16-bit boolean value of `a + 1`.
  */
-bool* arith::INC16(bool* a) {
+bool* alu::INC16(bool* a) {
     return ADD16(a, one);
 }
 
@@ -121,7 +121,7 @@ bool* arith::INC16(bool* a) {
  * @param a The 16-bit input boolean value.
  * @return The two's complement value of `a`.
  */
-bool* arith::NEG16(bool* a) {
+bool* alu::NEG16(bool* a) {
     bool* res = a;
     res = hdl->NOT16(res);
     res = INC16(res);
@@ -129,7 +129,7 @@ bool* arith::NEG16(bool* a) {
 }
 
 /**
- * Performs arithmetic logic manipulation on two 16-bit boolean input values and calculates
+ * Performs alumetic logic manipulation on two 16-bit boolean input values and calculates
  * their results using six flags passed into the chip. Returns a 16-bit boolean value and a 
  * `zr` and `ng` tag specifying if the result was zero or negative.
  * 
@@ -143,7 +143,7 @@ bool* arith::NEG16(bool* a) {
  * @param no If `true`, sets `out` to `-out`.
  * @return An 18-bit boolean list containing `{out[0 - 15], zr, ng}`.
  */
-bool* arith::ALU(bool* x, bool* y, bool zx, bool nx, bool zy, bool ny, bool f, bool no) {
+bool* alu::ALU(bool* x, bool* y, bool zx, bool nx, bool zy, bool ny, bool f, bool no) {
     bool* out = new bool[16];
 
     if (zx) x = zero;

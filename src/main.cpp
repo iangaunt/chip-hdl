@@ -12,7 +12,7 @@
 
 #include "screen/display.h"
 
-#include "arith.h"
+#include "alu.h"
 #include "hdlc.h"
 #include "ram.h"
 
@@ -34,12 +34,12 @@ string bool_to_str(bool* b) {
 
 int main(int argv, char** args) {
     // asm location
-    const char* location = "C:/Users/ianga/Desktop/Codespaces/chip-hdl/src/asm/add.asm";
+    const char* location = "C:/Users/ianga/Desktop/Codespaces/chip-hdl/src/asm/vars.asm";
 
     // chip parts
     hdlc hdlc_c = *new hdlc();
-    arith arith_c = *new arith(&hdlc_c);
-    ram ram_c = *new ram(&hdlc_c, &arith_c, 32768);
+    alu alu_c = *new alu(&hdlc_c);
+    ram ram_c = *new ram(&hdlc_c, &alu_c, 32768);
 
     // display
     display display_c = *new display(512, 256);
@@ -52,7 +52,7 @@ int main(int argv, char** args) {
     vector<instruction*> instr = reader_c.read_instructions(ch);
 
     // clock specs
-    auto cycle_delay = 10;
+    auto cycle_delay = 5;
 	auto last_cycle = high_resolution_clock::now();
 
     int max_clock = INT32_MAX;
@@ -78,12 +78,20 @@ int main(int argv, char** args) {
             dff::update_dffs();
             display_c.poll();
 
-            display_c.read(&ram_c, &arith_c);
+            display_c.read(&ram_c, &alu_c);
 			last_cycle = current;
 		}
 
         clock++;
     }
+
+    cout << ram_c.varmap.size() << endl;
+    for (const auto& pair : ram_c.varmap) {
+        cout << pair.first << " : " << pair.second << endl;
+    }
+
+    bool one[16] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true};
+    cout << bool_to_str(ram_c.GET(one)) << endl;
 
     display_c.end();
     return 0;

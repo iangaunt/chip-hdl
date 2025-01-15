@@ -5,7 +5,7 @@
 #include "ram/bit_register.h"
 #include "ram/bit.h"
 
-#include "arith.h"
+#include "alu.h"
 #include "hdlc.h"
 
 /**
@@ -13,12 +13,13 @@
  * 
  * @param chip The `hdlc` for operations.
  */
-ram::ram(hdlc* chip, arith* arch, int s) {
+ram::ram(hdlc* chip, alu* arch, int s) {
     hdl = chip;
     ar = arch;
     size = s;
 
-    mem = *new vector<bit_register*>;
+    mem = *new vector<bit_register*>();
+    varmap = *new unordered_map<string, bool*>();
     pc = 0;
 
     for (int i = 0; i < 16; i++) {
@@ -76,4 +77,22 @@ bool* ram::GET(bool* k) {
     bit_register* b = mem[index];
     
     return b->VALUE();
+}
+
+/**
+ * Adds a new variable named `var` into the variable map with the 
+ * initial value `k`. Attempts to add another variable at `var`
+ * will result in no effect.
+ * 
+ * @param var The string label for the variable.
+ * @param k The initial 16-bit value stores under the variable.
+ */
+void ram::ADDVAR(string var, bool* k) {
+    std::cout << "add" << std::endl;
+    if (varmap.find(var) == varmap.end()) varmap[var] = k;
+}
+
+bool* ram::GETVAR(string var) {
+    if (varmap.find(var) != varmap.end()) return varmap[var];
+    return nullptr;
 }

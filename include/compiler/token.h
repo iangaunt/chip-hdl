@@ -6,17 +6,19 @@
 using std::string;
 
 enum token_type {
-    EQUALS,
-    NEGATIVE,
-    NUMBER,
+    EQUALS, // 0
+    NEGATIVE, // 1
+    NUMBER, // 2
 
-    REGISTER,
-    CONDITION,
-    OPERAND,
+    REGISTER, // 3
+    CONDITION, // 4
+    OPERAND, // 5
 
-    SEMICOLON,
-    LOGICAL,
-    ARROW
+    SEMICOLON, // 6
+    LOGICAL, // 7
+    ARROW, // 8
+
+    VARIABLE // 9
 };
 
 class token {

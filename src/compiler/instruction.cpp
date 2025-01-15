@@ -24,6 +24,11 @@ vector<vector<token_type>> syntax {
         token_type::OPERAND, token_type::REGISTER
     }, 
 
+    // A instruction: @var
+	{
+        token_type::OPERAND, token_type::VARIABLE
+    }, 
+
     // C instruction: reg = num
 	{
         token_type::REGISTER, token_type::EQUALS, token_type::NUMBER
@@ -147,14 +152,14 @@ bool compare_logical(bool* reg, string logical) {
  * @param reg1 The first register contents.
  * @param reg2 The second register contents.
  * @param op The operator string - either `+`, `-`, `&`, or `|`.
- * @param r The `ram` object - used for the arithmetic and hdl chips.
+ * @param r The `ram` object - used for the alumetic and hdl chips.
  * @return The result of the operation, or a `nullptr` if the operation is invalid.
  */
 bool* perform_operation(bool* reg1, bool* reg2, string op, ram* r) {
     bool* res = nullptr;
 
     hdlc* hdl = r->hdl;
-    arith* ar = r->ar;
+    alu* ar = r->ar;
 
     if (op == "+") {
         res = ar->ADD16(reg1, reg2);
@@ -261,6 +266,9 @@ void instruction::run(ram* r) {
     int syntax_index = syntax_match(tokens);
     if (syntax_index == -1) return;
 
+    cout << syntax_index << endl;
+    print_instruction();
+
     switch (syntax_index) {
         // A instruction: @xxx
         case 0: { 
@@ -294,8 +302,18 @@ void instruction::run(ram* r) {
             break;         
         }
 
-        // C instruction: reg = num
+        // A instruction: @var
         case 2: {
+            if (tokens[0]->ttype != token_type::OPERAND && tokens[0]->character != "@") 
+                return throw_err("ERROR: A instruction contains malformed introductory token");
+
+            bool* var = r->GETVAR(tokens[1]->character);
+            if (var == nullptr) r->ADDVAR(tokens[1]->character, r->a);
+            if (var != nullptr) r->a = var;
+        }
+
+        // C instruction: reg = num
+        case 3: {
             bool* reg1 = fetch_register(tokens[0]->character, r);
             if (reg1 == nullptr) 
                 return throw_err("ERROR: C instruction contains malformed introductory register");
@@ -308,7 +326,7 @@ void instruction::run(ram* r) {
         }
 
         // C instruction: reg1 = reg2
-        case 3: {
+        case 4: {
             bool* reg1 = fetch_register(tokens[0]->character, r);
             if (reg1 == nullptr) 
                 return throw_err("ERROR: C instruction contains malformed introductory register");
@@ -323,7 +341,7 @@ void instruction::run(ram* r) {
         }
 
         // C instruction: reg1 = reg1 + reg2
-        case 4: {
+        case 5: {
             bool* reg1 = fetch_register(tokens[0]->character, r);
             if (reg1 == nullptr) 
                 return throw_err("ERROR: C instruction contains malformed introductory register");
@@ -346,7 +364,7 @@ void instruction::run(ram* r) {
         }
 
         // C instruction: reg1 = reg1 + num
-        case 5: {
+        case 6: {
             bool* reg1 = fetch_register(tokens[0]->character, r);
             if (reg1 == nullptr) 
                 return throw_err("ERROR: C instruction contains malformed introductory register");
@@ -369,7 +387,7 @@ void instruction::run(ram* r) {
         }
 
         // C instruction: reg1 ; logical > @xxx
-        case 6: {
+        case 7: {
             bool* reg1 = fetch_register(tokens[0]->character, r);
             if (reg1 == nullptr) 
                 return throw_err("ERROR: C instruction contains malformed introductory register");
@@ -383,7 +401,7 @@ void instruction::run(ram* r) {
         }
 
         // C instruction: reg1 op reg2 ; logical > @xxx
-        case 7: {
+        case 8: {
             bool* reg1 = fetch_register(tokens[0]->character, r);
             if (reg1 == nullptr) 
                 return throw_err("ERROR: C instruction contains malformed introductory register");
@@ -406,7 +424,7 @@ void instruction::run(ram* r) {
         }
 
         // C instruction: reg1 op number ; logical > @xxx
-        case 8: {
+        case 9: {
             bool* reg1 = fetch_register(tokens[0]->character, r);
             if (reg1 == nullptr) 
                 return throw_err("ERROR: C instruction contains malformed introductory register");
