@@ -1,22 +1,8 @@
-// i = 1.
-@i.
-M = 1.
+@24576.
+D = A.
 
-// Initialize sum at address 1;
-@1.
-@sum.
-
-// sum = 0.
-@sum.
-M = 0.
-
-// sum = sum + i.
-@i.
-D = M.
-
-@sum.
-M = M + D.
-
-// i = i + 1.
-@i.
-M = M + 1.
+// Looping.
+@D.
+M = D.
+D = D + 1.
+D ; JGE > @2.

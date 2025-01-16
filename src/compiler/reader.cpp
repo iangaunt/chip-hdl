@@ -91,6 +91,8 @@ vector<instruction*> reader::read_instructions(vector<char> vec) {
 
 	bool c_log = false;
 	bool logical = false;
+
+	bool num = false;
 	bool var = false;
 
 	for (char c : vec) {
@@ -131,33 +133,33 @@ vector<instruction*> reader::read_instructions(vector<char> vec) {
 			continue;
 		}
 
-		// If the next character is a lowercase letter or underscore, then start writing a variable.
-		if ((c >= 'a' && c <= 'z') || c == '_') {
-			var = true;
-		}
-
 		// If the variable flag is on, build the variable from the following characters until a STOP code is met.
-		if (var) {
-			if (c == '.') {
-				var = false;
+		if (islower(c)) {
+			var = true;
+			running += c;
+			continue;
+		} else {
+			if (running.size() > 0 && num == false) {
 				tokens.push_back(
 					new token(token_type::VARIABLE, running)
 				);
 				running = "";
-			} else {
-				running += c;
+				var = false;
 			}
 		}
 
 		// If there is a number, add it to the token list.
 		if (isdigit(c)) {
+			num = true;
 			running += c;
+			continue;
 		} else {
-			if (running.size() > 0) {
+			if (running.size() > 0 && var == false) {
 				tokens.push_back(
 					new token(token_type::NUMBER, running)
 				);
 				running = "";
+				num = false;
 			}
 		}
 

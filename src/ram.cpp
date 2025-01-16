@@ -88,7 +88,6 @@ bool* ram::GET(bool* k) {
  * @param k The initial 16-bit value stores under the variable.
  */
 void ram::ADDVAR(string var, bool* k) {
-    std::cout << "add" << std::endl;
     if (varmap.find(var) == varmap.end()) varmap[var] = k;
 }
 

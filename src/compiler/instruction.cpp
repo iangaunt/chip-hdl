@@ -248,11 +248,21 @@ void instruction::throw_err(string msg) {
 void instruction::print_instruction() {
     string j = "";
     for (int i = 0; i < tokens.size(); i++) {
-        j += tokens[i]->character;
+        j += "" + tokens[i]->character;
     }
     cout << j << endl;
 }
 
+/**
+ * Prints out the `ttype`s of the tokens.
+ */
+void instruction::print_instr_tokens() {
+    string j = "";
+    for (int i = 0; i < tokens.size(); i++) {
+        j += "" + tokens[i]->ttype;
+    }
+    cout << j << endl;
+}
 
 /**
  * Runs the content of the instruction on the designated `ram` object.
@@ -265,9 +275,6 @@ void instruction::print_instruction() {
 void instruction::run(ram* r) {
     int syntax_index = syntax_match(tokens);
     if (syntax_index == -1) return;
-
-    cout << syntax_index << endl;
-    print_instruction();
 
     switch (syntax_index) {
         // A instruction: @xxx
@@ -296,6 +303,8 @@ void instruction::run(ram* r) {
             if (reg1 == nullptr) 
                 return throw_err("ERROR: A instruction contains malformed introductory register");
 
+            cout << btos(reg1) << endl;
+
             r->a = reg1;
             r->m = r->GET(r->a);
 
@@ -310,6 +319,8 @@ void instruction::run(ram* r) {
             bool* var = r->GETVAR(tokens[1]->character);
             if (var == nullptr) r->ADDVAR(tokens[1]->character, r->a);
             if (var != nullptr) r->a = var;
+
+            break;
         }
 
         // C instruction: reg = num

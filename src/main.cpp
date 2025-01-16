@@ -34,7 +34,7 @@ string bool_to_str(bool* b) {
 
 int main(int argv, char** args) {
     // asm location
-    const char* location = "C:/Users/ianga/Desktop/Codespaces/chip-hdl/src/asm/vars.asm";
+    const char* location = "C:/Users/ianga/Desktop/Codespaces/chip-hdl/src/asm/add.asm";
 
     // chip parts
     hdlc hdlc_c = *new hdlc();
@@ -56,7 +56,7 @@ int main(int argv, char** args) {
 	auto last_cycle = high_resolution_clock::now();
 
     int max_clock = INT32_MAX;
-    int max_cycles = 1000;
+    int max_cycles = 20;
     int clock = 0, cycles = 0;
 
     // program loop
@@ -85,13 +85,12 @@ int main(int argv, char** args) {
         clock++;
     }
 
-    cout << ram_c.varmap.size() << endl;
-    for (const auto& pair : ram_c.varmap) {
-        cout << pair.first << " : " << pair.second << endl;
-    }
-
-    bool one[16] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true};
+    bool one[16] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
     cout << bool_to_str(ram_c.GET(one)) << endl;
+
+    for (const auto& pair : ram_c.varmap) {
+        cout << pair.first << ": " << bool_to_str(pair.second) << endl;
+    }
 
     display_c.end();
     return 0;
